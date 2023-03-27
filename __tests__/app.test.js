@@ -52,7 +52,7 @@ describe('/api/articles', () => {
         });
       });
   });
-  it('400: should return a bad request when an invalid article_id is provided', () => {
+  it('400: should return a bad request when an invalid article id is provided', () => {
     return request(app)
       .get('/api/articles/invalid-id')
       .expect(400)
