@@ -12,7 +12,7 @@ afterAll(() => {
   return db.end();
 });
 
-describe('/api/topics', () => {
+describe('GET /api/topics', () => {
   it('200: should return a list of all three topics objects inside of an array', () => {
     return request(app)
       .get('/api/topics')
@@ -32,7 +32,7 @@ describe('/api/topics', () => {
   });
 });
 
-describe('/api/articles', () => {
+describe('GET /api/articles/:article_id', () => {
   it('200: should return the correct article object corresponding to the provided id', () => {
     return request(app)
       .get('/api/articles/5')
