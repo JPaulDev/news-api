@@ -4,9 +4,11 @@ const {
   getAllArticles,
   getArticleById,
   getCommentsByArticleId,
+  postArticleComment,
 } = require('./controllers/article.controller');
 const {
   handlePSQL400Errors,
+  handlePSQL422Errors,
   handleCustomErrors,
   handle500Errors,
   handle404Errors,
@@ -14,13 +16,17 @@ const {
 
 const app = express();
 
+app.use(express.json());
+
 app.get('/api/topics', getAllTopics);
 
 app.get('/api/articles', getAllArticles);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
+app.post('/api/articles/:article_id/comments', postArticleComment);
 
 app.use(handlePSQL400Errors);
+app.use(handlePSQL422Errors);
 app.use(handleCustomErrors);
 app.use(handle500Errors);
 app.use('/*', handle404Errors);
