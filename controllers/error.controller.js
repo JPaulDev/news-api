@@ -12,7 +12,7 @@ exports.handlePSQL422Errors = (err, req, res, next) => {
   const codes = ['23503'];
 
   if (codes.includes(err.code)) {
-    res.status(422).send({ error: { msg: 'Unprocessable Content' } });
+    res.status(404).send({ error: { msg: 'Invalid key provided.' } });
   } else {
     next(err);
   }

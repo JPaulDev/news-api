@@ -122,6 +122,95 @@ describe('GET /api/articles/:article_id', () => {
   });
 });
 
+describe('PATCH /api/articles/:article_id', () => {
+  it('200: should increment the vote count on the specified article by the given value and return the article object', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 100 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+
+        expect(article).toMatchObject({
+          article_id: 1,
+          votes: 200,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  it('200: should decrement the vote count on the specified article by the given value and return the article object', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: -100 })
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+
+        expect(article).toMatchObject({
+          article_id: 1,
+          votes: 0,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+  it('400: should return a bad request when an invalid article id is provided', () => {
+    return request(app)
+      .patch('/api/articles/invalid-id')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('404: should return a not found message when a non-existent article id is provided', () => {
+    return request(app)
+      .patch('/api/articles/999')
+      .send({ inc_votes: -100 })
+      .expect(404)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty(
+          'msg',
+          'Sorry, we could not find an article with that id.'
+        );
+      });
+  });
+  it('400: should respond with a bad request error if the body is missing the required key/value', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('400: should respond with a bad request error if inc_votes value is not a valid integer', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 'not-a-valid-number' })
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+});
+
 describe('GET /api/articles/:article_id/comments', () => {
   it('200: should return all eleven of the comment objects belonging to the article with an id of one inside of an array', () => {
     return request(app)
@@ -211,26 +300,26 @@ describe('POST /api/articles/:article_id/comments', () => {
         });
       });
   });
-  it('422: should return a unprocessable content error when an non-existant article id is provided', () => {
+  it('404: should return a not found error when an non-existant article id is provided', () => {
     return request(app)
       .post('/api/articles/999/comments')
       .send({ username: 'rogersop', body: 'test comment' })
-      .expect(422)
+      .expect(404)
       .then(({ body }) => {
         const { error } = body;
 
-        expect(error).toHaveProperty('msg', 'Unprocessable Content');
+        expect(error).toHaveProperty('msg', 'Invalid key provided.');
       });
   });
-  it('422: should return a unprocessable content error when an non-existant username is provided', () => {
+  it('404: should return a not found error when an non-existant username is provided', () => {
     return request(app)
       .post('/api/articles/1/comments')
       .send({ username: 'unknown-user', body: 'test comment' })
-      .expect(422)
+      .expect(404)
       .then(({ body }) => {
         const { error } = body;
 
-        expect(error).toHaveProperty('msg', 'Unprocessable Content');
+        expect(error).toHaveProperty('msg', 'Invalid key provided.');
       });
   });
   it('400: should return a bad request when an invalid article id is provided', () => {

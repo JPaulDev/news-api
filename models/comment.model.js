@@ -2,7 +2,7 @@ const db = require('../db/connection');
 
 exports.selectCommentsByArticleId = async (articleId) => {
   const queries = [
-    'SELECT * FROM articles WHERE article_id=$1',
+    'SELECT * FROM articles WHERE article_id=$1;',
     'SELECT * FROM comments WHERE article_id=$1 ORDER BY created_at DESC;',
   ];
 
