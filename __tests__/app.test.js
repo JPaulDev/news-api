@@ -22,6 +22,7 @@ describe('GET /api/topics', () => {
 
         expect(topics).toBeInstanceOf(Array);
         expect(topics.length).toBe(3);
+
         topics.forEach((topic) => {
           expect(topic).toMatchObject({
             description: expect.any(String),
@@ -109,6 +110,76 @@ describe('GET /api/articles/:article_id', () => {
   it('404: should return a not found message when a non-existent article id is provided', () => {
     return request(app)
       .get('/api/articles/999')
+      .expect(404)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty(
+          'msg',
+          'Sorry, we could not find an article with that id.'
+        );
+      });
+  });
+});
+
+describe('GET /api/articles/:article_id/comments', () => {
+  it('200: should return all eleven of the comment objects belonging to the article with an id of one inside of an array', () => {
+    return request(app)
+      .get('/api/articles/1/comments')
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments.length).toBe(11);
+
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            article_id: 1,
+            comment_id: expect.any(Number),
+            body: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+          });
+        });
+      });
+  });
+  it('200: should sort comments by created_at in descending order by default', () => {
+    return request(app)
+      .get('/api/articles/1/comments')
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+
+        expect(comments).toBeSortedBy('created_at', {
+          descending: true,
+        });
+      });
+  });
+  test('200: should respond with an empty array if the given article exists but has no comments', () => {
+    return request(app)
+      .get('/api/articles/4/comments')
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+
+        expect(comments).toEqual([]);
+      });
+  });
+  it('400: should return a bad request when an invalid article id is provided', () => {
+    return request(app)
+      .get('/api/articles/invalid-id/comments')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('404: should return a not found message when a non-existent article id is provided', () => {
+    return request(app)
+      .get('/api/articles/999/comments')
       .expect(404)
       .then(({ body }) => {
         const { error } = body;

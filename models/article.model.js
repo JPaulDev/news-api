@@ -1,13 +1,12 @@
 const db = require('../db/connection');
 
 exports.selectAllArticles = async () => {
-  const queryString = `
+  const { rows: articles } = await db.query(`
     SELECT articles.*, COUNT(comment_id)::int AS comment_count FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
     GROUP BY articles.article_id
     ORDER BY created_at DESC;
-  `;
-  const { rows: articles } = await db.query(queryString);
+  `);
 
   return articles;
 };
