@@ -12,8 +12,8 @@ afterAll(() => {
   return db.end();
 });
 
-describe('/api/topics', () => {
-  it('200: should return a list of all three topics objects inside of an array', () => {
+describe('GET /api/topics', () => {
+  it('200: should return a list of all three topic objects inside of an array', () => {
     return request(app)
       .get('/api/topics')
       .expect(200)
@@ -32,7 +32,51 @@ describe('/api/topics', () => {
   });
 });
 
-describe('/api/articles', () => {
+describe('GET /api/articles', () => {
+  it('200: should return a list of all twelve article objects including their comment counts inside of an array', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        let totalComments = 0;
+
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+          totalComments += article.comment_count;
+        });
+
+        expect(totalComments).toBe(18);
+      });
+  });
+  it('200: should sort articles by created_at in descending order by default', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles).toBeSortedBy('created_at', {
+          descending: true,
+        });
+      });
+  });
+});
+
+describe('GET /api/articles/:article_id', () => {
   it('200: should return the correct article object corresponding to the provided id', () => {
     return request(app)
       .get('/api/articles/5')
@@ -52,7 +96,7 @@ describe('/api/articles', () => {
         });
       });
   });
-  it('400: should return a bad request when an invalid article_id is provided', () => {
+  it('400: should return a bad request when an invalid article id is provided', () => {
     return request(app)
       .get('/api/articles/invalid-id')
       .expect(400)
