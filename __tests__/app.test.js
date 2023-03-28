@@ -256,6 +256,51 @@ describe('POST /api/articles/:article_id/comments', () => {
   });
 });
 
+describe('DELETE /api/comments/:comment_id', () => {
+  it('204: should delete the comment matching the provided comment id from the database', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204)
+      .then(() => {
+        return db.query('SELECT FROM comments WHERE comment_id=1;');
+      })
+      .then(({ rows }) => {
+        expect(rows.length).toBe(0);
+      });
+  });
+  it('204: should respond with a no content status and an empty body upon successful deletion', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  it('400: should respond with a bad request error when an invalid comment id is provided', () => {
+    return request(app)
+      .delete('/api/comments/invalid-id')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('404: should respond with a not found error when a non-existent comment id is provided', () => {
+    return request(app)
+      .delete('/api/comments/999')
+      .expect(404)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty(
+          'msg',
+          'Sorry, we could not find a comment with that id.'
+        );
+      });
+  });
+});
+
 describe('/api/invalid-url', () => {
   it('404: should return an error message if an invalid url is provided', () => {
     return request(app)
