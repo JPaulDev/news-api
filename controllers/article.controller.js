@@ -1,6 +1,7 @@
 const {
   selectArticleById,
   selectAllArticles,
+  updateArticleVotesById,
 } = require('../models/article.model');
 const {
   selectCommentsByArticleId,
@@ -45,6 +46,18 @@ exports.postArticleComment = async (req, res, next) => {
   try {
     const comment = await insertArticleComment(article_id, username, body);
     res.status(201).send({ comment });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.patchUpdateArticleVotes = async (req, res, next) => {
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+
+  try {
+    const article = await updateArticleVotesById(article_id, inc_votes);
+    res.status(200).send({ article });
   } catch (err) {
     next(err);
   }

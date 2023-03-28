@@ -27,3 +27,20 @@ exports.selectArticleById = async (articleId) => {
 
   return article;
 };
+
+exports.updateArticleVotesById = async (articleId, votes) => {
+  const { rows } = await db.query(
+    'UPDATE articles SET votes=votes+$2 WHERE article_id=$1 RETURNING *;',
+    [articleId, votes]
+  );
+  const [article] = rows;
+
+  if (!article) {
+    return Promise.reject({
+      status: 404,
+      msg: 'Sorry, we could not find an article with that id.',
+    });
+  }
+
+  return article;
+};
