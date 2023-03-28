@@ -8,6 +8,16 @@ exports.handlePSQL400Errors = (err, req, res, next) => {
   }
 };
 
+exports.handlePSQL422Errors = (err, req, res, next) => {
+  const codes = ['23503'];
+
+  if (codes.includes(err.code)) {
+    res.status(422).send({ error: { msg: 'Unprocessable Content' } });
+  } else {
+    next(err);
+  }
+};
+
 exports.handleCustomErrors = (err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ error: { msg: err.msg } });

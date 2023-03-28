@@ -157,7 +157,7 @@ describe('GET /api/articles/:article_id/comments', () => {
         });
       });
   });
-  test('200: should respond with an empty array if the given article exists but has no comments', () => {
+  it('200: should respond with an empty array if the given article exists but has no comments', () => {
     return request(app)
       .get('/api/articles/4/comments')
       .expect(200)
@@ -188,6 +188,70 @@ describe('GET /api/articles/:article_id/comments', () => {
           'msg',
           'Sorry, we could not find an article with that id.'
         );
+      });
+  });
+});
+
+describe('POST /api/articles/:article_id/comments', () => {
+  it('201: should post a new comment and then return a comment object upon being added successfully', () => {
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send({ username: 'rogersop', body: 'test comment' })
+      .expect(201)
+      .then(({ body }) => {
+        const { comment } = body;
+
+        expect(comment).toMatchObject({
+          article_id: 1,
+          author: 'rogersop',
+          body: 'test comment',
+          votes: 0,
+          comment_id: expect.any(Number),
+          created_at: expect.any(String),
+        });
+      });
+  });
+  it('422: should return a unprocessable content error when an non-existant article id is provided', () => {
+    return request(app)
+      .post('/api/articles/999/comments')
+      .send({ username: 'rogersop', body: 'test comment' })
+      .expect(422)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Unprocessable Content');
+      });
+  });
+  it('422: should return a unprocessable content error when an non-existant username is provided', () => {
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send({ username: 'unknown-user', body: 'test comment' })
+      .expect(422)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Unprocessable Content');
+      });
+  });
+  it('400: should return a bad request when an invalid article id is provided', () => {
+    return request(app)
+      .get('/api/articles/invalid-id/comments')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('400: should respond with a bad request error if the body is missing the required keys', () => {
+    return request(app)
+      .post('/api/articles/1/comments')
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
       });
   });
 });
