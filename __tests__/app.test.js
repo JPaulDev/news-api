@@ -166,6 +166,7 @@ describe('PATCH /api/articles/:article_id', () => {
   it('400: should return a bad request when an invalid article id is provided', () => {
     return request(app)
       .patch('/api/articles/invalid-id')
+      .send({ inc_votes: 100 })
       .expect(400)
       .then(({ body }) => {
         const { error } = body;
