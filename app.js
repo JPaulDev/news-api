@@ -1,5 +1,6 @@
 const express = require('express');
 const { getAllTopics } = require('./controllers/topic.controller');
+const { getAllUsers } = require('./controllers/user.controller');
 const {
   getAllArticles,
   getArticleById,
@@ -20,6 +21,8 @@ const app = express();
 app.use(express.json());
 
 app.get('/api/topics', getAllTopics);
+
+app.get('/api/users', getAllUsers);
 
 app.get('/api/articles', getAllArticles);
 app.get('/api/articles/:article_id', getArticleById);
