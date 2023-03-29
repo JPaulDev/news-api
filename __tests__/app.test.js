@@ -34,7 +34,7 @@ describe('GET /api/topics', () => {
 });
 
 describe('GET /api/articles', () => {
-  it('200: should return a list of all twelve article objects including their comment counts inside of an array', () => {
+  it('200: should return all twelve article objects including their comment counts inside of an array if no topic is specified', () => {
     return request(app)
       .get('/api/articles')
       .expect(200)
@@ -63,7 +63,52 @@ describe('GET /api/articles', () => {
         expect(totalComments).toBe(18);
       });
   });
-  it('200: should sort articles by created_at in descending order by default', () => {
+  it('200: should return all of the articles that match the specified topic query', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(11);
+
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            topic: 'mitch',
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  it('200: should return an empty array if a topic exists but has no articles associated with it', () => {
+    return request(app)
+      .get('/api/articles?topic=paper')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles).toEqual([]);
+      });
+  });
+  it('404: should return a not found error when an non-existant topic query is provided', () => {
+    return request(app)
+      .get('/api/articles?topic=invalid-topic')
+      .expect(404)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', "Sorry we can't find that topic.");
+      });
+  });
+  it('200: should return all of the articles sorted by created_at in descending order if no order or sort_by query is provided', () => {
     return request(app)
       .get('/api/articles')
       .expect(200)
@@ -73,6 +118,86 @@ describe('GET /api/articles', () => {
         expect(articles).toBeSortedBy('created_at', {
           descending: true,
         });
+      });
+  });
+  it('200: should return all of the the articles sorted by created_at in ascending order if no sort_by query is provided', () => {
+    return request(app)
+      .get('/api/articles?order=asc')
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+
+        expect(articles).toBeSortedBy('created_at');
+      });
+  });
+  it('200: should return the articles sorted by the provided sort_by query in descending order by default', () => {
+    const sortByValues = [
+      'article_id',
+      'author',
+      'votes',
+      'created_at',
+      'comment_count',
+      'title',
+      'topic',
+    ];
+
+    const promises = sortByValues.map((value) => {
+      return request(app)
+        .get(`/api/articles?sort_by=${value}`)
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+
+          expect(articles).toBeSortedBy(value, {
+            descending: true,
+          });
+        });
+    });
+
+    return Promise.all(promises);
+  });
+  it('200: should return the articles sorted by the provided sort_by query in ascending order', () => {
+    const sortByValues = [
+      'article_id',
+      'author',
+      'votes',
+      'created_at',
+      'comment_count',
+      'title',
+      'topic',
+    ];
+
+    const promises = sortByValues.map((value) => {
+      return request(app)
+        .get(`/api/articles?sort_by=${value}&order=asc`)
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+
+          expect(articles).toBeSortedBy(value);
+        });
+    });
+
+    return Promise.all(promises);
+  });
+  it('400: should return a bad request when an invalid sort_by query is provided', () => {
+    return request(app)
+      .get('/api/articles?sort_by=invalid-sort-by')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
+      });
+  });
+  it('400: should return a bad request when an invalid order query is provided', () => {
+    return request(app)
+      .get('/api/articles?order=invalid-order')
+      .expect(400)
+      .then(({ body }) => {
+        const { error } = body;
+
+        expect(error).toHaveProperty('msg', 'Bad Request');
       });
   });
 });
