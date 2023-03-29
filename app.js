@@ -7,6 +7,7 @@ const {
   getCommentsByArticleId,
   postArticleComment,
 } = require('./controllers/article.controller');
+const { deleteCommentById } = require('./controllers/comment.controller');
 const {
   handlePSQL400Errors,
   handlePSQL422Errors,
@@ -26,6 +27,8 @@ app.get('/api/articles/:article_id', getArticleById);
 app.patch('/api/articles/:article_id', patchUpdateArticleVotes);
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId);
 app.post('/api/articles/:article_id/comments', postArticleComment);
+
+app.delete('/api/comments/:comment_id', deleteCommentById);
 
 app.use(handlePSQL400Errors);
 app.use(handlePSQL422Errors);
