@@ -1,12 +1,45 @@
 const db = require('../db/connection');
+const format = require('pg-format');
 
-exports.selectAllArticles = async () => {
-  const { rows: articles } = await db.query(`
+exports.selectAllArticles = async (
+  topic,
+  sort_by = 'created_at',
+  order = 'desc'
+) => {
+  // Check that the supplied order is valid.
+  if (!['asc', 'desc'].includes(order)) {
+    return Promise.reject({ status: 400, msg: 'Bad Request' });
+  }
+
+  let queryString = `
     SELECT articles.*, COUNT(comment_id)::int AS comment_count FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id
-    ORDER BY created_at DESC;
-  `);
+  `;
+
+  if (topic) {
+    // If a topic is provided we must first check if it exists and return
+    // a custom error if it does not.
+    const topicData = await db.query('SELECT * FROM topics WHERE slug=$1;', [
+      topic,
+    ]);
+
+    if (!topicData.rowCount) {
+      return Promise.reject({
+        status: 404,
+        msg: "Sorry we can't find that topic.",
+      });
+    }
+
+    queryString += format("WHERE articles.topic = '%s'", topic);
+  }
+
+  queryString += format(
+    'GROUP BY articles.article_id ORDER BY %I %s;',
+    sort_by,
+    order
+  );
+
+  const { rows: articles } = await db.query(queryString);
 
   return articles;
 };
