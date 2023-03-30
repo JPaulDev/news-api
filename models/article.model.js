@@ -46,7 +46,12 @@ exports.selectAllArticles = async (
 
 exports.selectArticleById = async (articleId) => {
   const { rows } = await db.query(
-    'SELECT * FROM articles WHERE article_id=$1;',
+    `
+      SELECT a.*,
+        (SELECT COUNT(*)::int FROM comments c WHERE c.article_id = a.article_id) AS comment_count
+      FROM articles a
+      WHERE a.article_id=$1;
+    `,
     [articleId]
   );
   const [article] = rows;
