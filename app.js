@@ -1,4 +1,5 @@
 const express = require('express');
+const { getApiEndpoints } = require('./controllers/api.controller');
 const { getAllTopics } = require('./controllers/topic.controller');
 const { getAllUsers } = require('./controllers/user.controller');
 const {
@@ -20,6 +21,8 @@ const {
 const app = express();
 
 app.use(express.json());
+
+app.get('/api', getApiEndpoints);
 
 app.get('/api/topics', getAllTopics);
 

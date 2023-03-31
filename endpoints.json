@@ -1,27 +1,114 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves a JSON representation of all the available API endpoints."
+  },
+  "GET /api/users": {
+    "description": "Serves an array of all the users.",
+    "queries": [],
+    "responseBody": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
   },
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all the article topics.",
     "queries": [],
-    "exampleResponse": {
+    "responseBody": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
+    "description": "Serves an array of all the articles which can be filtered by topic and sorted in ascending or descending order by a specific field e.g., title.",
+    "queries": ["topic", "sort_by", "order"],
+    "responseBody": {
       "articles": [
         {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+          "article_id": 3,
+          "title": "Eight pug gifs that remind me of mitch",
+          "topic": "mitch",
+          "author": "icellusedkars",
+          "body": "some gifs",
+          "created_at": "2020-11-03T09:12:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": 2
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "Serves an article object that corresponds to the provided id.",
+    "queries": [],
+    "responseBody": {
+      "article": {
+        "article_id": 5,
+        "title": "UNCOVERED: catspiracy to bring down democracy",
+        "topic": "cats",
+        "author": "rogersop",
+        "body": "Bastet walks amongst us, and the cats are taking arms!",
+        "created_at": "2020-08-03T13:14:00.000Z",
+        "votes": 0,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 2
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Increments or decrements the articles vote count with either a positive or negative integer and serves the updated article object.",
+    "queries": [],
+    "requestBody": { "inc_votes": 100 },
+    "responseBody": {
+      "article": {
+        "article_id": 1,
+        "votes": 200,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "Serves an array of all the comments that belong to the specified article.",
+    "queries": [],
+    "responseBody": {
+      "comments": [
+        {
+          "article_id": 1,
+          "comment_id": 5,
+          "body": "I hate streaming noses",
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2020-11-03T21:00:00.000Z"
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Posts a comment on the specified article and serves the comment object.",
+    "queries": [],
+    "requestBody": { "username": "user", "body": "comment" },
+    "responseBody": {
+      "comment": {
+        "article_id": 1,
+        "comment_id": 19,
+        "body": "comment",
+        "author": "user",
+        "votes": 0,
+        "created_at": "2023-03-30T15:19:17.310Z"
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes the specified comment from an article.",
+    "queries": [],
+    "responseBody": {}
   }
 }
