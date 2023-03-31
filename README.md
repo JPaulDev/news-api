@@ -4,6 +4,11 @@ The project provides a simple and user-friendly interface that is built with
 express and allows developers to easily integrate news articles into their own
 applications or websites.
 
+## Prerequisites
+
+- Node.js v19.8.1 or later.
+- postgreSQL v14.7 or later.
+
 ## Environment Variables
 
 To run this project locally you must supply the correct environment variables that
