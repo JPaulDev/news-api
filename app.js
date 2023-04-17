@@ -17,10 +17,12 @@ const {
   handle500Errors,
   handle404Errors,
 } = require('./controllers/error.controller');
+const cors = require('cors');
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/api', getApiEndpoints);
 
