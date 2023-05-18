@@ -1,8 +1,6 @@
 <h1 align="center">News API</h1>
 
-The project provides a simple and user-friendly interface that is built with
-express and allows developers to easily integrate news articles into their own
-applications or websites.
+The news API is developed using Express.js and PostgreSQL. This API offers a range of features, allowing users to seamlessly browse and interact with news articles. Users can access a list of articles, view individual articles in detail, and explore the accompanying comments. Additionally, they have the ability to like articles and share their thoughts by leaving comments. The API is thoroughly tested using Jest and Supertest to ensure its reliability and functionality.
 
 ## Prerequisites
 
